@@ -1,0 +1,43 @@
+nginx:
+    build: ./nginx
+    volumes:
+        - .:/usr/src/app
+    links:
+        - django
+    ports:
+        - "80:80"
+
+django:
+    build: .
+    environment:
+        - BROKER_URL=amqp://guest:guest@rabbitmq// 
+    volumes:
+        - .:/usr/src/app
+    expose:
+        - "8000"
+    links:
+        - postgres
+
+postgres:
+    image: alexk9901/postgres-django:devel 
+
+rabbitmq:
+  image: rabbitmq
+  ports:
+    - "15672:15672"
+
+celery:
+  image: celery
+  environment:
+    - C_FORCE_ROOT=true
+    - DATABASE_HOST=postgres
+    - BROKER_URL=amqp://guest:guest@rabbitmq//
+  working_dir: /code
+  command: bash -c "sleep 3 && celery -A mysite worker k -l info --concurrency=3"
+  volumes:
+    - .code/python:/usr/local/lib/python2.7
+    - .code/python/bin:/usr/local/bin
+  links:
+    - postgres
+    - rabbitmq
+

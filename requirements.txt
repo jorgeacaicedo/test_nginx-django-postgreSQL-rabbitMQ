@@ -22,4 +22,4 @@ Sphinx
 django-debug-toolbar==1.2.1
 python-memcached==1.53
 gunicorn==19.1.1
-
+django-helpdesk
